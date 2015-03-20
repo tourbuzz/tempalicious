@@ -14,7 +14,7 @@ class Tempalicious
     protected $tmpDir               = NULL;
     protected $extension            = NULL;
     protected $tmpFile              = NULL;
-    protected $tmpFileWithExtension = NULL;
+    protected $tmpFileSemaphore     = NULL;
 
     public function __construct()
     {
@@ -38,30 +38,38 @@ class Tempalicious
         if ($this->inited) return;
         $this->inited = true;
 
-        if (!$this->extension) throw new Exception("Extension is required in this version of Tempalicious");
-
         register_shutdown_function(array($this, 'cleanup'));
 
-        // provision semaphore file
-        $this->tmpFile = tempnam($this->tmpDir, "Tempalicous_");
+        if ($this->extension)
+        {
+            // provision semaphore file
+            $this->tmpFileSemaphore = tempnam($this->tmpDir, "Tempalicous_");
+            if ($this->tmpFileSemaphore === false) throw new Exception("Couldn't create temp file semaphore {$this->tmpFileSemaphore}");
 
-        // create actual temp file
-        $this->tmpFileWithExtension = "{$this->tmpFile}.{$this->extension}";
-        $ok = touch($this->tmpFileWithExtension);
-        if (!$ok) throw new Exception("Unable to touch {$this->tmpFileWithExtension}");
+            // create actual temp file
+            $this->tmpFile = "{$this->tmpFile}.{$this->extension}";
+            $ok = touch($this->tmpFile);
+            if (!$ok) throw new Exception("Unable to touch {$this->tmpFile}");
+        }
+        else
+        {
+            // create actual temp file
+            $this->tmpFile = tempnam($this->tmpDir, "Tempalicous_");
+            if ($this->tmpFile === false) throw new Exception("Couldn't create temp file {$this->tmpFile}");
+        }
     }
 
     public function cleanup()
     {
-        if ($this->tmpFileWithExtension && file_exists($this->tmpFileWithExtension))
-        {
-            unlink($this->tmpFileWithExtension);
-        }
-
-        // clean semaphore file last
         if ($this->tmpFile && file_exists($this->tmpFile))
         {
             unlink($this->tmpFile);
+        }
+
+        // clean semaphore file last
+        if ($this->tmpFileSemaphore && file_exists($this->tmpFileSemaphore))
+        {
+            unlink($this->tmpFileSemaphore);
         }
     }
 
@@ -69,7 +77,7 @@ class Tempalicious
     {
         $this->ensureTempFile();
 
-        return $this->tmpFileWithExtension;
+        return $this->tmpFile;
     }
 
     /**

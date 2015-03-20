@@ -2,7 +2,18 @@
 
 class TempaliciousTest extends PHPUnit_Framework_TestCase
 {
-    function testTempFilesCreated()
+    function testTempFilesWithNoExtension()
+    {
+        $t = new Tempalicious();
+        $tempFile = $t->getTempfilePath();
+
+        $this->assertFileExists($tempFile, "/tmp/Tempfile file doesn't exist");
+
+        $t->cleanup();
+        $this->assertFileNotExists($tempFile, "/tmp/Tempfile wasn't cleaned up.");
+    }
+
+    function testTempFilesWithExtension()
     {
         $t = new Tempalicious();
         $t->setExtension('ext');
