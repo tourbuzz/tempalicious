@@ -23,16 +23,29 @@ class Tempalicious
 
     public function setExtension($extension)
     {
-        $this->extension = ltrim(trim($extension), '.');
+        $cleanedExtension = ltrim(trim($extension), '.');
+        if ($cleanedExtension === '')
+        {
+            $this->extension = NULL;
+        }
+        else
+        {
+            $this->extension = $cleanedExtension;
+        }
+
         return $this;
     }
 
     public function setTmpDir($dir)
     {
         $this->tmpDir = $dir;
+
         return $this;
     }
 
+    /**
+     * idempotent
+     */
     private function ensureTempFile()
     {
         if ($this->inited) return;
@@ -66,7 +79,7 @@ class Tempalicious
             unlink($this->tmpFile);
         }
 
-        // clean semaphore file last
+        // clean semaphore file last to avoid weird race condition where PHP will re-issue a recently used tmpfile
         if ($this->tmpFileSemaphore && file_exists($this->tmpFileSemaphore))
         {
             unlink($this->tmpFileSemaphore);
@@ -81,17 +94,28 @@ class Tempalicious
     }
 
     /**
+     * Static initializer for fluent use.
+     *
+     * Hopefully future-proof if __invokeStatic() should appear in language.
+     *
+     * @return object Tempalicious
+     */
+    public static function __invokeStatic()
+    {
+        return new Tempalicious();
+    }
+
+    /**
      * Static initializer to create a Tempalicious file.
      *
-     * @param string The desired extension, example: "png"
+     * @param string The desired extension, example: "png", default NULL
      * @return string The path to a temp file location.
      */
-    public static function create($extension)
+    public static function create($extension = NULL)
     {
-        $tmp = new Tempalicious();
-        return $tmp->setExtension($extension)
+        return Tempalicious::__invokeStatic()
+                   ->setExtension($extension)
                    ->getTempfilePath()
                    ;
     }
 }
-
