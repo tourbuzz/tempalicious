@@ -1,0 +1,19 @@
+{
+  "name": "tourbuzz/tempalicious",
+  "description": "Robust, self-cleaning tempfiles with extensions.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alan Pinstein",
+      "email": "alan@tourbuzz.net"
+    }
+  ],
+  "minimum-stability": "beta",
+  "autoload": {
+    "classmap": ["src/Tempalicious.php"]
+  },
+  "require": {},
+  "require-dev": {
+    "phpunit/phpunit": "3.7.*"
+  }
+}
