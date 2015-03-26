@@ -21,7 +21,20 @@ class TempaliciousTest extends PHPUnit_Framework_TestCase
         $t = Tempalicious::create('ext');
         $this->assertFileExists($t);
         $this->assertRegexp('/\.ext$/', $t);
+    }
 
+    /**
+     * @testdox Tempalicious puts temp files into sys_get_temp_dir()
+     */
+    function testTempFileLocation()
+    {
+        $t = Tempalicious::create('ext');
+        $tempaliciousTmpFileDirPath = dirname($t);
+        $this->assertEquals(sys_get_temp_dir(), $tempaliciousTmpFileDirPath);
+
+        $t = Tempalicious::create();
+        $tempaliciousTmpFileDirPath = dirname($t);
+        $this->assertEquals(sys_get_temp_dir(), $tempaliciousTmpFileDirPath);
     }
 
     /**

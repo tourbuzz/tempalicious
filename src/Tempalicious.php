@@ -60,7 +60,7 @@ class Tempalicious
             if ($this->tmpFileSemaphore === false) throw new Exception("Couldn't create temp file semaphore {$this->tmpFileSemaphore}");
 
             // create actual temp file
-            $this->tmpFile = "{$this->tmpFile}.{$this->extension}";
+            $this->tmpFile = "{$this->tmpFileSemaphore}.{$this->extension}";
             $ok = touch($this->tmpFile);
             if (!$ok) throw new Exception("Unable to touch {$this->tmpFile}");
         }
